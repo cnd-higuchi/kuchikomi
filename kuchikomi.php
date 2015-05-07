@@ -33,6 +33,8 @@ class kuchikomi {
 				for($i = 0; $i < count($_POST['kuchikomi_custom']); $i++) {
 					if ( isset( $_POST['kuchikomi_custom'][$i]['type'] ) && $_POST['kuchikomi_custom'][$i]['type'] ){
 						$options[$ii]['type'] = $_POST['kuchikomi_custom'][$i]['type'];
+						$options[$ii]['slug'] = $_POST['kuchikomi_custom'][$i]['slug'];
+						$options[$ii]['label'] = $_POST['kuchikomi_custom'][$i]['label'];
 						$ii++;
 					}
 				}
