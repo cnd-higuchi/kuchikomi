@@ -32,9 +32,18 @@ class kuchikomi {
 				$ii = 0;
 				for($i = 0; $i < count($_POST['kuchikomi_custom']); $i++) {
 					if ( isset( $_POST['kuchikomi_custom'][$i]['type'] ) && $_POST['kuchikomi_custom'][$i]['type'] ){
-						$options[$ii]['type'] = $_POST['kuchikomi_custom'][$i]['type'];
-						$options[$ii]['slug'] = $_POST['kuchikomi_custom'][$i]['slug'];
-						$options[$ii]['label'] = $_POST['kuchikomi_custom'][$i]['label'];
+						if( isset($_POST['kuchikomi_custom'][$i]['type']) ) {
+							$options[$ii]['type'] = $_POST['kuchikomi_custom'][$i]['type'];
+						}
+						if( isset($_POST['kuchikomi_custom'][$i]['slug']) ) {
+							$options[$ii]['slug'] = $_POST['kuchikomi_custom'][$i]['slug'];
+						}
+						if( isset($_POST['kuchikomi_custom'][$i]['label']) ) {
+							$options[$ii]['label'] = $_POST['kuchikomi_custom'][$i]['label'];
+						}
+						if( isset($_POST['kuchikomi_custom'][$i]['options']) ) {
+							$options[$ii]['options'] = $_POST['kuchikomi_custom'][$i]['options'];
+						}
 						$ii++;
 					}
 				}
@@ -70,12 +79,55 @@ class kuchikomi {
 		return $return;
 	}
 
+	public function get_option_value($options, $i, $element) {
+		$return = '';
+		if ( isset($options[$i][$element]) ) {
+			$return = $options[$i][$element];
+		}
+		return $return;
+	}
+
 	public function comment_form_defaults( $defaults ) {
 		$defaults['title_reply'] = 'クチコミをのこす';
 		return $defaults;
 	}
 
 	public function comment_form_field_comment( $comment ) {
+		$options = get_option( 'kuchikomi_options' );
+		$items = '';
+		for ( $i = 0; $i < count($options); $i++ ) {
+			if( $options[$i]['type'] == 'text' ) {
+				$items .= "
+					<p class=\"comment-form-{$options[$i]['slug']}\">
+						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
+						<input id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" type=\"text\" value=\"\" size=\"30\" />
+					</p>";
+			} elseif( $options[$i]['type'] == 'rating' ) {
+				$items .= "
+					<p class=\"comment-form-{$options[$i]['slug']}\">
+						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
+						<span class=\"1star\">☆</span>
+						<span class=\"2stars\">☆</span>
+						<span class=\"3stars\">☆</span>
+						<span class=\"4stars\">☆</span>
+						<span class=\"5stars\">☆</span>
+					</p>";
+			} elseif( $options[$i]['type'] == 'select' ) {
+				$html_option = '<option value="">選択してください</option>';
+				$html_options_array = explode(':', $options[$i]['options']);
+				foreach($html_options_array as $row) {
+					$html_option .= "<option value=\"{$row}\">{$row}</option>";
+				}
+				$items .= "
+					<p class=\"comment-form-{$options[$i]['slug']}\">
+						<label for=\"{$options[$i]['slug']}\">肌質</label>
+						<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\">
+							{$html_option}
+						</select>
+					</p>";
+			}
+		}
+		/*
 		$comment = '
 			<p class="comment-form-title">
 				<label for="title">タイトル</label>
@@ -84,6 +136,7 @@ class kuchikomi {
 			<p class="comment-form-rating">
 				<label for="rating">評価</label>
 				<span class="stars">☆☆☆☆☆</span>
+				<input id="rating" name="rating" type="number" step="0.1" min="1.0" max="5.0" />
 			</p>
 			<p class="comment-form-type">
 				<label for="type">肌質</label>
@@ -106,6 +159,8 @@ class kuchikomi {
 				<input id="age" name="age" type="number" value="" size="3" />歳
 			</p>'
 			.$comment;
+		 */
+		$comment = $items . $comment;
 		return $comment;
 	}
 	public function comment_form_submit_button( $submit_button, $args ) {
@@ -117,6 +172,9 @@ class kuchikomi {
 			'クチコミを投稿する'
 		);
 		return $submit_button;
+	}
+
+	public function the_kuchikomi_form_input( $slug ) {
 	}
 }
 $kuchikomi = new kuchikomi();
