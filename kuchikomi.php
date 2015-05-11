@@ -16,11 +16,26 @@ class kuchikomi {
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults') );
 		add_filter( 'comment_form_field_comment', array( $this, 'comment_form_field_comment') );
 		add_filter( 'comment_form_submit_button', array( $this, 'comment_form_submit_button'), 10, 2 );
+		add_filter( 'wp_list_comments_args', array( $this, 'wp_list_comments_args') );
 		add_action( 'admin_menu', array( $this, 'admin_menu') );
 		add_action( 'admin_init', array( $this, 'admin_init') );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts') );
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts') );
+		add_action( 'add_meta_boxes_comment', array( $this, 'add_meta_boxes_comment' ) );
+		add_action( 'comment_post', array( $this, 'update_comment_field' ) );
+		add_action( 'edit_comment', array( $this, 'update_comment_field' ) );
 	}
 
+	public function wp_list_comments_args($r) {
+
+		$r['end-callback'] = $this->display_comment_meta();
+
+		return $r;
+	}
+
+	public function display_comment_meta() {
+		echo 'test';
+	}
 	public function admin_menu () {
 		add_options_page('kuchikomi', 'kuchikomi', 'manage_options', basename(__FILE__), array( $this, 'admin_page') );
 	}	
@@ -55,7 +70,24 @@ class kuchikomi {
 		}
 	}	
 
+	public function wp_enqueue_scripts( $hook ) {
+		wp_enqueue_script(
+			'kuchikomi.js',
+			plugins_url( 'js/kuchikomi.js', __FILE__ ),
+			array( 'jquery' ),
+			'0.1',
+			false
+		);
+	}
+
 	public function admin_enqueue_scripts( $hook ) {
+		wp_enqueue_script(
+			'kuchikomi.js',
+			plugins_url( 'js/kuchikomi.js', __FILE__ ),
+			array( 'jquery' ),
+			'0.1',
+			false
+		);
 		wp_enqueue_script(
 			'kuchikomi_admin.js',
 			plugins_url( 'js/kuchikomi_admin.js', __FILE__ ),
@@ -92,6 +124,72 @@ class kuchikomi {
 		return $defaults;
 	}
 
+	public function add_meta_boxes_comment() {
+		global $comment;
+		$comment_ID = $comment->comment_ID;
+		$custom_key         = 'post_reviews_date';
+		$noncename          = $custom_key . '_noncename' ;
+		echo '<input type="hidden" name="' . $noncename . '" id="' . $noncename . '" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />' . "\n";
+		$options = get_option( 'kuchikomi_options' );
+		$items = '';
+		for ( $i = 0; $i < count($options); $i++ ) {
+			$meta_key_title   = $options[$i]['slug'];
+			$get_comment_meta_value  = get_comment_meta( $comment_ID, $meta_key_title, true );
+			if( $options[$i]['type'] == 'text') {
+				$get_comment_meta_value = esc_attr($get_comment_meta_value);
+				echo "
+					<p><b><label for=\"comment-title\">{$options[$i]['label']}</label></b></p><p><input id=\"{$meta_key_title}\" name=\"{$meta_key_title}\" type=\"text\" value=\"{$get_comment_meta_value}\" size=\"56\" maxlength=\"30\"/></p>\n";
+			} elseif( $options[$i]['type'] == 'rating' ) {
+				$get_comment_meta_value = esc_attr($get_comment_meta_value);
+				echo "
+					<p class=\"comment-form-{$options[$i]['slug']}\">\n
+						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>\n
+						<span class=\"kuchikomi_rating 1star\">★</span>\n
+						<span class=\"kuchikomi_rating 2stars\">☆</span>\n
+						<span class=\"kuchikomi_rating 3stars\">☆</span>\n
+						<span class=\"kuchikomi_rating 4stars\">☆</span>\n
+						<span class=\"kuchikomi_rating 5stars\">☆</span>\n
+						<input type=\"hidden\" id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"kuchikomi_rating_value\" value=\"{$get_comment_meta_value}\" />\n
+					</p>\n";
+			} elseif( $options[$i]['type'] == 'select' ) {
+				$html_option = '<option value="">選択してください</option>';
+				$html_options_array = explode(':', $options[$i]['options']);
+				foreach($html_options_array as $row) {
+					if( $row == $get_comment_meta_value ) {
+						$html_option .= "<option value=\"{$row}\" selected=\"selected\">{$row}</option>";
+					} else {
+						$html_option .= "<option value=\"{$row}\">{$row}</option>";
+					}
+				}
+				echo "
+					<p class=\"comment-form-{$options[$i]['slug']}\">
+						<label for=\"{$options[$i]['slug']}\">肌質</label>
+						<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\">
+							{$html_option}
+						</select>
+					</p>";
+			} elseif( $options[$i]['type'] == 'checkbox' ) {
+				$html_option = '';
+				$html_options_array = explode(':', $options[$i]['options']);
+				$j = 0;
+				foreach($html_options_array as $row) {
+					if( in_array($row, $get_comment_meta_value) ) {
+						$html_option .= "<li><input type=\"checkbox\" id=\"{$options[$i]['slug']}{$j}\" name=\"{$options[$i]['slug']}[]\" value=\"{$row}\" checked=\"checked\" /><label for=\"{$options[$i]['slug']}{$j}\">{$row}</label></li>";
+					} else {
+						$html_option .= "<li><input type=\"checkbox\" id=\"{$options[$i]['slug']}{$j}\" name=\"{$options[$i]['slug']}[]\" value=\"{$row}\" /><label for=\"{$options[$i]['slug']}{$j}\">{$row}</label></li>";
+					}
+					$j++;
+				}
+				echo "
+					<p class=\"comment-form-{$options[$i]['slug']}\">
+						<ul>
+							{$html_option}
+						</ul>
+					</p>";
+			}
+		}
+	}
+
 	public function comment_form_field_comment( $comment ) {
 		$options = get_option( 'kuchikomi_options' );
 		$items = '';
@@ -106,11 +204,12 @@ class kuchikomi {
 				$items .= "
 					<p class=\"comment-form-{$options[$i]['slug']}\">
 						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
-						<span class=\"1star\">☆</span>
-						<span class=\"2stars\">☆</span>
-						<span class=\"3stars\">☆</span>
-						<span class=\"4stars\">☆</span>
-						<span class=\"5stars\">☆</span>
+						<span class=\"kuchikomi_rating 1star\">★</span>
+						<span class=\"kuchikomi_rating 2stars\">☆</span>
+						<span class=\"kuchikomi_rating 3stars\">☆</span>
+						<span class=\"kuchikomi_rating 4stars\">☆</span>
+						<span class=\"kuchikomi_rating 5stars\">☆</span>
+						<input type=\"hidden\" id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"kuchikomi_rating_value\" value=\"1\" />
 					</p>";
 			} elseif( $options[$i]['type'] == 'select' ) {
 				$html_option = '<option value="">選択してください</option>';
@@ -124,6 +223,20 @@ class kuchikomi {
 						<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\">
 							{$html_option}
 						</select>
+					</p>";
+			} elseif( $options[$i]['type'] == 'checkbox' ) {
+				$html_option = '';
+				$html_options_array = explode(':', $options[$i]['options']);
+				$j = 0;
+				foreach($html_options_array as $row) {
+					$html_option .= "<li><input type=\"checkbox\" id=\"{$options[$i]['slug']}{$j}\" name=\"{$options[$i]['slug']}[]\" value=\"{$row}\" /><label for=\"{$options[$i]['slug']}{$j}\">{$row}</label></li>";
+					$j++;
+				}
+				$items .= "
+					<p class=\"comment-form-{$options[$i]['slug']}\">
+						<ul>
+							{$html_option}
+						</ul>
 					</p>";
 			}
 		}
@@ -163,6 +276,26 @@ class kuchikomi {
 		$comment = $items . $comment;
 		return $comment;
 	}
+
+	public function update_comment_field( $comment_id ) {
+		if ( !$comment = get_comment( $comment_id ) ) {
+			return false;
+		}
+		$options = get_option( 'kuchikomi_options' );
+		for ( $i = 0; $i < count($options); $i++ ) {
+			$custom_key_title = $options[$i]['slug'];
+			$get_comment_title = $_POST[$custom_key_title];
+			if ( '' == get_comment_meta( $comment_id, $custom_key_title ) ) {
+				add_comment_meta( $comment_id, $custom_key_title, $get_comment_title, true );
+			} else if ( $get_comment_title != get_comment_meta( $comment_id, $custom_key_title ) ) {
+				update_comment_meta( $comment_id, $custom_key_title, $get_comment_title );
+			} else if ( '' == $get_comment_title ) {
+				delete_comment_meta( $comment_id, $custom_key_title );
+			}
+		}
+	    return false;
+	}
+
 	public function comment_form_submit_button( $submit_button, $args ) {
 		$submit_button = sprintf(
 			$args['submit_button'],
