@@ -1,0 +1,28 @@
+ul.kuchikomi {
+	list-style: none;
+}
+ul.kuchikomi li{
+	float: left;
+	margin: 0 10px 0 0;
+}
+ul.kuchikomi li label{
+	display: inline;
+}
+.clearfix:after { /*floatの解除、ここがポイント*/
+    display:block;
+    clear:both;
+    height:0px;
+    visibility:hidden;
+    content:".";
+}
+.clearfix {
+    min-height: 1px; /*IE6、7対策*/
+}
+* html .clearfix {
+    height: 1px;
+    /*\*//*/ /*MAC IE5.x対策*/
+    height: auto;
+    overflow: hidden;
+    /**/
+}
+

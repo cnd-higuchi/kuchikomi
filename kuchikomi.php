@@ -12,7 +12,9 @@ Domain Path: /languages
 
 class kuchikomi {
 
+	public $plugin_ver = '0.1';
 	public function __construct() {
+		include_once( 'class-kuchikomi-walker-comment.php' );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults') );
 		add_filter( 'comment_form_field_comment', array( $this, 'comment_form_field_comment') );
 		add_filter( 'comment_form_submit_button', array( $this, 'comment_form_submit_button'), 10, 2 );
@@ -28,14 +30,11 @@ class kuchikomi {
 
 	public function wp_list_comments_args($r) {
 
-		$r['end-callback'] = $this->display_comment_meta();
+		$r['walker'] = new Kuchikomi_Walker_Comment();
 
 		return $r;
 	}
 
-	public function display_comment_meta() {
-		echo 'test';
-	}
 	public function admin_menu () {
 		add_options_page('kuchikomi', 'kuchikomi', 'manage_options', basename(__FILE__), array( $this, 'admin_page') );
 	}	
@@ -73,26 +72,36 @@ class kuchikomi {
 	public function wp_enqueue_scripts( $hook ) {
 		wp_enqueue_script(
 			'kuchikomi.js',
-			plugins_url( 'js/kuchikomi.js', __FILE__ ),
+			plugins_url( 'assets/js/kuchikomi.js', __FILE__ ),
 			array( 'jquery' ),
-			'0.1',
+			$this->plugin_ver,
 			false
+		);
+		wp_register_style(
+			'kuchikomi.css',
+			plugins_url( 'assets/css/kuchikomi.css', __FILE__ ),
+			array(),
+			$this->plugin_ver,
+			'all'
+		);
+		wp_enqueue_style(
+			'kuchikomi.css'
 		);
 	}
 
 	public function admin_enqueue_scripts( $hook ) {
 		wp_enqueue_script(
 			'kuchikomi.js',
-			plugins_url( 'js/kuchikomi.js', __FILE__ ),
+			plugins_url( 'assets/js/kuchikomi.js', __FILE__ ),
 			array( 'jquery' ),
-			'0.1',
+			$this->plugin_ver,
 			false
 		);
 		wp_enqueue_script(
 			'kuchikomi_admin.js',
-			plugins_url( 'js/kuchikomi_admin.js', __FILE__ ),
+			plugins_url( 'assets/js/kuchikomi_admin.js', __FILE__ ),
 			array( 'jquery' ),
-			'0.1',
+			$this->plugin_ver,
 			false
 		);
 	}
@@ -138,11 +147,11 @@ class kuchikomi {
 			if( $options[$i]['type'] == 'text') {
 				$get_comment_meta_value = esc_attr($get_comment_meta_value);
 				echo "
-					<p><b><label for=\"comment-title\">{$options[$i]['label']}</label></b></p><p><input id=\"{$meta_key_title}\" name=\"{$meta_key_title}\" type=\"text\" value=\"{$get_comment_meta_value}\" size=\"56\" maxlength=\"30\"/></p>\n";
+					<div><b><label for=\"comment-title\">{$options[$i]['label']}</label></b></p><p><input id=\"{$meta_key_title}\" name=\"{$meta_key_title}\" type=\"text\" value=\"{$get_comment_meta_value}\" size=\"56\" maxlength=\"30\"/></div>\n";
 			} elseif( $options[$i]['type'] == 'rating' ) {
 				$get_comment_meta_value = esc_attr($get_comment_meta_value);
 				echo "
-					<p class=\"comment-form-{$options[$i]['slug']}\">\n
+					<div class=\"comment-form-{$options[$i]['slug']}\">\n
 						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>\n
 						<span class=\"kuchikomi_rating 1star\">★</span>\n
 						<span class=\"kuchikomi_rating 2stars\">☆</span>\n
@@ -150,7 +159,7 @@ class kuchikomi {
 						<span class=\"kuchikomi_rating 4stars\">☆</span>\n
 						<span class=\"kuchikomi_rating 5stars\">☆</span>\n
 						<input type=\"hidden\" id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"kuchikomi_rating_value\" value=\"{$get_comment_meta_value}\" />\n
-					</p>\n";
+					</div>\n";
 			} elseif( $options[$i]['type'] == 'select' ) {
 				$html_option = '<option value="">選択してください</option>';
 				$html_options_array = explode(':', $options[$i]['options']);
@@ -162,12 +171,12 @@ class kuchikomi {
 					}
 				}
 				echo "
-					<p class=\"comment-form-{$options[$i]['slug']}\">
+					<div class=\"comment-form-{$options[$i]['slug']}\">
 						<label for=\"{$options[$i]['slug']}\">肌質</label>
 						<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\">
 							{$html_option}
 						</select>
-					</p>";
+					</div>";
 			} elseif( $options[$i]['type'] == 'checkbox' ) {
 				$html_option = '';
 				$html_options_array = explode(':', $options[$i]['options']);
@@ -181,11 +190,11 @@ class kuchikomi {
 					$j++;
 				}
 				echo "
-					<p class=\"comment-form-{$options[$i]['slug']}\">
-						<ul>
+					<div class=\"comment-form-{$options[$i]['slug']}\">
+						<ul class=\"kuchikomi clearfix\">
 							{$html_option}
 						</ul>
-					</p>";
+					</div>";
 			}
 		}
 	}
@@ -196,13 +205,13 @@ class kuchikomi {
 		for ( $i = 0; $i < count($options); $i++ ) {
 			if( $options[$i]['type'] == 'text' ) {
 				$items .= "
-					<p class=\"comment-form-{$options[$i]['slug']}\">
+					<div class=\"comment-form-{$options[$i]['slug']}\">
 						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
 						<input id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" type=\"text\" value=\"\" size=\"30\" />
-					</p>";
+					</div>";
 			} elseif( $options[$i]['type'] == 'rating' ) {
 				$items .= "
-					<p class=\"comment-form-{$options[$i]['slug']}\">
+					<div class=\"comment-form-{$options[$i]['slug']}\">
 						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
 						<span class=\"kuchikomi_rating 1star\">★</span>
 						<span class=\"kuchikomi_rating 2stars\">☆</span>
@@ -210,7 +219,7 @@ class kuchikomi {
 						<span class=\"kuchikomi_rating 4stars\">☆</span>
 						<span class=\"kuchikomi_rating 5stars\">☆</span>
 						<input type=\"hidden\" id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"kuchikomi_rating_value\" value=\"1\" />
-					</p>";
+					</div>";
 			} elseif( $options[$i]['type'] == 'select' ) {
 				$html_option = '<option value="">選択してください</option>';
 				$html_options_array = explode(':', $options[$i]['options']);
@@ -218,12 +227,12 @@ class kuchikomi {
 					$html_option .= "<option value=\"{$row}\">{$row}</option>";
 				}
 				$items .= "
-					<p class=\"comment-form-{$options[$i]['slug']}\">
+					<div class=\"comment-form-{$options[$i]['slug']}\">
 						<label for=\"{$options[$i]['slug']}\">肌質</label>
 						<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\">
 							{$html_option}
 						</select>
-					</p>";
+					</div>";
 			} elseif( $options[$i]['type'] == 'checkbox' ) {
 				$html_option = '';
 				$html_options_array = explode(':', $options[$i]['options']);
@@ -233,11 +242,12 @@ class kuchikomi {
 					$j++;
 				}
 				$items .= "
-					<p class=\"comment-form-{$options[$i]['slug']}\">
-						<ul>
+					<div class=\"comment-form-{$options[$i]['slug']}\">
+						<label>{$options[$i]['label']}</label>
+						<ul class=\"kuchikomi clearfix\">
 							{$html_option}
 						</ul>
-					</p>";
+					</div>";
 			}
 		}
 		/*
@@ -309,5 +319,6 @@ class kuchikomi {
 
 	public function the_kuchikomi_form_input( $slug ) {
 	}
+
 }
 $kuchikomi = new kuchikomi();
