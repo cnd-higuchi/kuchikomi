@@ -39,7 +39,7 @@ class kuchikomi {
 			$excerpt = mb_substr( $excerpt, 0, $excerpt_length, $blog_encoding ) . '&hellip;';
 			$return = "
 				<div class=\"kuchikomi_excerpt\" data-commentid=\"{$comment->comment_ID}\">{$excerpt}</div>
-				<div class=\"btn_more\" data-commentid=\"{$comment->comment_ID}\">more</div>
+				<div class=\"btn_more\" data-commentid=\"{$comment->comment_ID}\"><span>more</span></div>
 				<div class=\"kuchikomi_comment\" data-commentid=\"{$comment->comment_ID}\">{$comment_text}</div>
 			";
 		} else {
@@ -273,39 +273,6 @@ class kuchikomi {
 					</div>";
 			}
 		}
-		/*
-		$comment = '
-			<p class="comment-form-title">
-				<label for="title">タイトル</label>
-				<input id="title" name="title" type="text" value="" size="30" />
-			</p>
-			<p class="comment-form-rating">
-				<label for="rating">評価</label>
-				<span class="stars">☆☆☆☆☆</span>
-				<input id="rating" name="rating" type="number" step="0.1" min="1.0" max="5.0" />
-			</p>
-			<p class="comment-form-type">
-				<label for="type">肌質</label>
-				<select id="type" name="type">
-					<option value="乾燥肌">乾燥肌</option>
-					<option value="脂性肌・オイリー肌">脂性肌・オイリー肌</option>
-					<option value="敏感肌">敏感肌</option>
-					<option value="混合肌">混合肌</option>
-					<option value="アトピー肌">アトピー肌</option>
-					<option value="ニキビ肌">ニキビ肌</option>
-					<option value="デリケート肌">デリケート肌</option>
-					<option value="かさかさ肌">かさかさ肌</option>
-					<option value="秋肌">秋肌</option>
-					<option value="枯れ肌">枯れ肌</option>
-					<option value="年齢肌">年齢肌</option>
-				</select>
-			</p>
-			<p class="comment-form-age">
-				<label for="age">年齢</label>
-				<input id="age" name="age" type="number" value="" size="3" />歳
-			</p>'
-			.$comment;
-		 */
 		$comment = $items . $comment;
 		return $comment;
 	}
