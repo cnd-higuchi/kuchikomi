@@ -19,6 +19,7 @@ class kuchikomi {
 		add_filter( 'comment_form_field_comment', array( $this, 'comment_form_field_comment') );
 		add_filter( 'comment_form_submit_button', array( $this, 'comment_form_submit_button'), 10, 2 );
 		add_filter( 'wp_list_comments_args', array( $this, 'wp_list_comments_args') );
+		add_filter( 'comment_text', array( $this, 'comment_text'), 10, 3 );
 		add_action( 'admin_menu', array( $this, 'admin_menu') );
 		add_action( 'admin_init', array( $this, 'admin_init') );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts') );
@@ -26,6 +27,28 @@ class kuchikomi {
 		add_action( 'add_meta_boxes_comment', array( $this, 'add_meta_boxes_comment' ) );
 		add_action( 'comment_post', array( $this, 'update_comment_field' ) );
 		add_action( 'edit_comment', array( $this, 'update_comment_field' ) );
+	}
+
+	public function comment_text( $comment_text, $comment, $args) {
+		$excerpt = preg_replace( "/\.\.\.$/", '', $comment_text );
+		$blog_encoding = 'UTF-8';
+		$excerpt_length = 200;
+		$return = '';
+
+		if ( mb_strlen( $excerpt, $blog_encoding ) > $excerpt_length ) {
+			$excerpt = mb_substr( $excerpt, 0, $excerpt_length, $blog_encoding ) . '&hellip;';
+			$return = "
+				<div class=\"kuchikomi_excerpt\" data-commentid=\"{$comment->comment_ID}\">{$excerpt}</div>
+				<div class=\"btn_more\" data-commentid=\"{$comment->comment_ID}\">more</div>
+				<div class=\"kuchikomi_comment\" data-commentid=\"{$comment->comment_ID}\">{$comment_text}</div>
+			";
+		} else {
+			$return = "<div class=\"kuchikomi_excerpt\" data-commmentid=\"{$comment->comment_ID}\">{$comment_text}</div>";
+		}
+
+
+		return $return;
+		
 	}
 
 	public function wp_list_comments_args($r) {

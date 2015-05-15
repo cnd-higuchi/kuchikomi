@@ -66,4 +66,12 @@ jQuery(function($) {
 	}
 	$rating = $('.kuchikomi_rating_value').val();
 	display_stars($rating);
+
+	$('.kuchikomi_comment').hide();
+	$('.btn_more').on('click', function() {
+		var $comment_id = $(this).attr('data-commentid');
+		$('.kuchikomi_comment[data-commentid = ' + $comment_id + ']').show();
+		$('.kuchikomi_excerpt[data-commentid = ' + $comment_id + ']').hide();
+		$(this).hide();
+	});
 });

@@ -26,3 +26,155 @@ ul.kuchikomi li label{
     /**/
 }
 
+/* item_kuchikomi_main_box */
+
+.item_kuchikomi_main_box_inner{
+	background:#fff;
+	box-shadow: 2px 2px 3px #d9d7c9;
+	margin-top:20px;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_image_left{
+	float:left;
+	width:140px;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_image_left .item_kuchikomi_image_left_box{
+	width:92px;
+	margin:0 auto;
+	padding:25px 0 0 0;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_image_left .item_kuchikomi_image_left_box .image{
+	padding-bottom:6px;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_image_left .item_kuchikomi_image_left_box p.name{
+	font-size:12px;
+	line-height:20px;
+	color:#555555;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_image_left .item_kuchikomi_image_left_box p.day{
+	font-size:12px;
+	line-height:20px;
+	color:#9c9c9c;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right{
+	width:618px;
+	float:right;
+	border-left:1px solid #e4e4e4;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner{
+	width:545px;
+	margin:0 auto;
+	padding:20px 0;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info{
+	float:left;
+	width:390px;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info h4{
+	font-size:17px;
+	line-height:20px;
+	color:#212121;
+	font-weight:bold;
+	margin-bottom:10px;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info h4 a:link, .item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info h4 a:visited{
+	color:#212121;
+	text-decoration:none;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info h4 a:hover{
+	color:#70706f;
+	text-decoration:underline;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info .info_detail{
+	font-size:12px;
+	line-height:18px;
+	color:#212121;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_info .info_detail span{
+	border:1px solid #b2af97;
+	padding:2px 6px;
+	margin-right:10px;
+	color:#212121;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_evaluation{
+	float:right;
+	width:153px;
+	background:#f4f3ec;
+	padding:15px 0;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_evaluation p{
+	text-align:center;
+	padding:0;
+	font-size:13px;
+	line-height:20px;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_info_inner .main_evaluation p span{
+	color:#f69c00;
+	padding:0 8px 0 0;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text{
+	border-top:1px solid #e4e4e4;
+	padding:18px 0;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text p{
+	width:12px;
+	line-height:26px;
+	width:545px;
+	margin:0 auto;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text p a:link, .item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text p a:visited{
+	color:#555;
+	text-decoration:none;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text p a:hover{
+	color:#919190;
+	text-decoration:underline;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text .btn_more{
+	width:450px;
+	margin:20px auto 0 auto;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text .btn_more a{
+	display:block;
+	border:1px solid #d2d1c4;
+	color:#6c6056;
+	width:450px;
+	margin:0 auto;
+	font-size:12px;
+	line-height:100%;
+	padding:8px 0;
+	text-align:center;
+	letter-spacing:2px;
+	background:url(../images/item/item_btn_icon_02_pc.png) right center no-repeat;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text .btn_more a:link, .item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text .btn_more a:visited{
+	border:1px solid #d2d1c4;
+	color:#6c6056;
+	text-decoration:none;
+}
+.item_kuchikomi_main_box_inner .item_kuchikomi_main_right .main_text .btn_more a:hover{
+	border:1px solid #e0dfd6;
+	color:#989089;
+	text-decoration:none;
+}
+.item_kuchikomi_inner .btn_kuchikomi_more{
+	width:760px;
+	margin:20px auto 30px auto;
+}
+.item_kuchikomi_inner .btn_kuchikomi_more a{
+	background:url(../images/item/item_btn_icon_03_pc.png) right center no-repeat #e8e2d0 ;
+	display:block;
+	color:#212121;
+	font-size:13px;
+	line-height:100%;
+	padding:10px 0;
+	text-align:center;
+}
+.item_kuchikomi_inner .btn_kuchikomi_more a:link, .item_kuchikomi_inner .btn_kuchikomi_more a:visited{
+	text-decoration:none;
+	background:url(../images/item/item_btn_icon_03_pc.png) right center no-repeat #e8e2d0;
+}
+.item_kuchikomi_inner .btn_kuchikomi_more a:hover{
+	text-decoration:none;
+	color:#646464;
+	background:url(../images/item/item_btn_icon_03_pc.png) right center no-repeat #efebde;
+}

@@ -77,46 +77,27 @@ class Kuchikomi_Walker_Comment extends Walker_Comment {
 	 */
 	protected function html5_comment( $comment, $depth, $args ) {
 		$tag = ( 'div' === $args['style'] ) ? 'div' : 'li';
+		$post_title = get_the_title();
 ?>
-		<<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class( $this->has_children ? 'parent' : '' ); ?>>
-			<article id="div-comment-<?php comment_ID(); ?>" class="comment-body">
-				<footer class="comment-meta">
-					<div class="comment-author vcard">
-						<?php if ( 0 != $args['avatar_size'] ) echo get_avatar( $comment, $args['avatar_size'] ); ?>
-						<?php printf( __( '%s <span class="says">says:</span>' ), sprintf( '<b class="fn">%s</b>', get_comment_author_link() ) ); ?>
-					</div><!-- .comment-author -->
-
-					<div class="comment-metadata">
-						<a href="<?php echo esc_url( get_comment_link( $comment->comment_ID, $args ) ); ?>">
-							<time datetime="<?php comment_time( 'c' ); ?>">
-								<?php printf( _x( '%1$s at %2$s', '1: date, 2: time' ), get_comment_date(), get_comment_time() ); ?>
-							</time>
-						</a>
-						<?php edit_comment_link( __( 'Edit' ), '<span class="edit-link">', '</span>' ); ?>
-					</div><!-- .comment-metadata -->
-
-					<?php if ( '0' == $comment->comment_approved ) : ?>
-					<p class="comment-awaiting-moderation"><?php _e( 'Your comment is awaiting moderation.' ); ?></p>
-					<?php endif; ?>
-				</footer><!-- .comment-meta -->
-
-				<div class="kuchikomi-metadata">
-					<?php $this->kuchikomi_list_comment_meta( $comment ); ?>
-				</div><!-- .kuchikomi-metadata -->
-				<div class="comment-content">
-					<?php comment_text(); ?>
-				</div><!-- .comment-content -->
-
-				<?php
-				comment_reply_link( array_merge( $args, array(
-					'add_below' => 'div-comment',
-					'depth'     => $depth,
-					'max_depth' => $args['max_depth'],
-					'before'    => '<div class="reply">',
-					'after'     => '</div>'
-				) ) );
-				?>
-			</article><!-- .comment-body -->
+		<div class="smp_none">
+			<div class="item_kuchikomi_main_box_inner clearfix">
+				<div class="item_kuchikomi_image_left">
+					<div class="item_kuchikomi_image_left_box">
+						<?php if ( 0 != $args['avatar_size'] ) echo '<div class="image">'.get_avatar( $comment, $args['avatar_size'], array(), '', array('class' => 'switch') ).'</div>'; ?>
+						<?php printf( '<p class="name">%s</p>', get_comment_author_link() ); ?>
+						<p class="day">
+							<?php printf( _x( '%1$s', '1: date' ), get_comment_date() ); ?>
+						</p>
+					</div>
+				</div>
+				<div class="item_kuchikomi_main_right">
+					<div class="main_text">
+						<?php $this->kuchikomi_list_comment_meta( $comment ); ?>
+						<p><?php comment_text(); ?></p>
+					</div>
+				</div>
+			</div>
+		</div>
 <?php
 	}
 
@@ -127,49 +108,39 @@ class Kuchikomi_Walker_Comment extends Walker_Comment {
 			$meta_key_title   = $options[$i]['slug'];
 			$get_comment_meta_value  = get_comment_meta( $comment_ID, $meta_key_title, true );
 			if($get_comment_meta_value) {
-				if( $options[$i]['type'] == 'text' || $options[$i]['type'] == 'select' ) {
-					$get_comment_meta_value = esc_attr($get_comment_meta_value);
-					echo "
-						<div>
-							<b>
-								{$options[$i]['label']}
-							</b>
-							{$get_comment_meta_value}
-						</div>\n";
+				if( $options[$i]['type'] == 'text' ) {
+					$meta_title = esc_attr($get_comment_meta_value);
+				} elseif( $options[$i]['type'] == 'select' ) {
+					$meta_age = esc_attr($get_comment_meta_value);
 				} elseif( $options[$i]['type'] == 'rating' ) {
 					$stars = '';
 					for ($j = 0; $j < 5; $j++) {
 						if ( $j < $get_comment_meta_value ) {
-							$stars .= "<span>★</span>";
+							$stars .= "★";
 						} else {
-							$stars .= "<span>☆</span>";
+							$stars .= "☆";
 						}
 					}
-					echo "
-						<div>
-							<b>
-								{$options[$i]['label']}
-							</b>
-							{$stars}
-						</div>\n";
+					$meta_rating = "<span>{$stars}</span>{$get_comment_meta_value}";
 				} elseif( $options[$i]['type'] == 'checkbox' ) {
-					$html_option = '';
-					$j = 0;
+					$meta_skins = array();
 					foreach($get_comment_meta_value as $row) {
-						$html_option .= "<li>{$row}</li>";
-						$j++;
+						$meta_skins[] = "<span>{$row}</span>";
 					}
-					echo "
-						<div>
-							<b>
-								{$options[$i]['label']}
-							</b>
-							<ul class=\"kuchikomi clearfix\">
-								{$html_option}
-							</ul>
-						</div>\n";
+					$meta_skin = implode(' ', $meta_skins);
+					
 				}
 			}
 		}
+		echo "
+			<div class=\"main_info_inner cf\">
+				<div class=\"main_info\">
+					<h4>{$meta_title}</h4>
+					<p class=\"info_detail\">{$meta_skin}{$meta_age}</p>
+				</div>
+				<div class=\"main_evaluation\">
+					<p>{$meta_rating}</p>
+				</div>
+			</div>\n";
 	}
 }
