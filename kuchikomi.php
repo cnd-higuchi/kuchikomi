@@ -152,7 +152,7 @@ class kuchikomi {
 	}
 
 	public function comment_form_defaults( $defaults ) {
-		$defaults['title_reply'] = 'クチコミをのこす';
+		$defaults['title_reply'] = '口コミを投稿する';
 		return $defaults;
 	}
 
@@ -222,27 +222,29 @@ class kuchikomi {
 		}
 	}
 
-	public function comment_form_field_comment( $comment ) {
+	public function comment_form_field_comment( ) {
 		$options = get_option( 'kuchikomi_options' );
 		$items = '';
 		for ( $i = 0; $i < count($options); $i++ ) {
 			if( $options[$i]['type'] == 'text' ) {
 				$items .= "
-					<div class=\"comment-form-{$options[$i]['slug']}\">
-						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
-						<input id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" type=\"text\" value=\"\" size=\"30\" />
-					</div>";
+					<tr>
+						<th><span>●</span>{$options[$i]['label']}</th>
+						<td><input id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" type=\"text\" value=\"\" placeholder=\"{$options[$i]['label']}を入れてください\" /></td>
+					</tr>";
 			} elseif( $options[$i]['type'] == 'rating' ) {
 				$items .= "
-					<div class=\"comment-form-{$options[$i]['slug']}\">
-						<label for=\"{$options[$i]['slug']}\">{$options[$i]['label']}</label>
-						<span class=\"kuchikomi_rating 1star\">★</span>
-						<span class=\"kuchikomi_rating 2stars\">☆</span>
-						<span class=\"kuchikomi_rating 3stars\">☆</span>
-						<span class=\"kuchikomi_rating 4stars\">☆</span>
-						<span class=\"kuchikomi_rating 5stars\">☆</span>
-						<input type=\"hidden\" id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"kuchikomi_rating_value\" value=\"1\" />
-					</div>";
+					<tr>
+						<th><span>●</span>{$options[$i]['label']}</th>
+						<td class=\"result\">
+							<span class=\"max kuchikomi_rating 1star\">★</span>
+							<span class=\"max kuchikomi_rating 2stars\">☆</span>
+							<span class=\"max kuchikomi_rating 3stars\">☆</span>
+							<span class=\"max kuchikomi_rating 4stars\">☆</span>
+							<span class=\"max kuchikomi_rating 5stars\">☆</span>
+							<input type=\"hidden\" id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"kuchikomi_rating_value\" value=\"1\" />
+						</td>
+					</tr>";
 			} elseif( $options[$i]['type'] == 'select' ) {
 				$html_option = '<option value="">選択してください</option>';
 				$html_options_array = explode(':', $options[$i]['options']);
@@ -250,12 +252,14 @@ class kuchikomi {
 					$html_option .= "<option value=\"{$row}\">{$row}</option>";
 				}
 				$items .= "
-					<div class=\"comment-form-{$options[$i]['slug']}\">
-						<label for=\"{$options[$i]['slug']}\">肌質</label>
-						<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\">
-							{$html_option}
-						</select>
-					</div>";
+					<tr>
+						<th><span>●</span>{$options[$i]['label']}</th>
+						<td>
+							<select id=\"{$options[$i]['slug']}\" name=\"{$options[$i]['slug']}\" class=\"selectbox\">
+								{$html_option}
+							</select>
+						</td>
+					</tr>";
 			} elseif( $options[$i]['type'] == 'checkbox' ) {
 				$html_option = '';
 				$html_options_array = explode(':', $options[$i]['options']);
@@ -265,16 +269,17 @@ class kuchikomi {
 					$j++;
 				}
 				$items .= "
-					<div class=\"comment-form-{$options[$i]['slug']}\">
-						<label>{$options[$i]['label']}</label>
-						<ul class=\"kuchikomi clearfix\">
-							{$html_option}
-						</ul>
-					</div>";
+					<tr>
+						<th><span>●</span>{$options[$i]['label']}</th>
+						<td>
+							<ul class=\"worries_text kuchikomi clearfix\">
+								{$html_option}
+							</ul>
+						</td>
+					</tr>";
 			}
 		}
-		$comment = $items . $comment;
-		return $comment;
+		return $items;
 	}
 
 	public function update_comment_field( $comment_id ) {
@@ -308,6 +313,45 @@ class kuchikomi {
 	}
 
 	public function the_kuchikomi_form_input( $slug ) {
+	}
+
+	public function comment_form() {
+		global $current_user;
+		get_currentuserinfo();
+		$post_id = get_the_ID();
+?>
+		<div id="kuchikomi_write">
+			<div class="btn_contribution_off">
+				<p>口コミを投稿する</p>
+			</div>
+			<div class="item_kuchikomi_write_inner cf">
+				<div class="item_kuchikomi_write">
+					<form action="<?php echo site_url('/wp-comments-post.php'); ?>" method="post">
+						<table cellpadding="0" cellspacing="0" border="0">
+							<?php echo $this->comment_form_field_comment(); ?>
+							<tr>
+								<th><span>●</span>本文</th>
+								<td>
+									<textarea rows="3" cols="20" id="comment" name="comment" placeholder="本文を入れてください"></textarea>
+								</td>
+							</tr>
+						</table>
+						<div class="btn_area">
+							<input type="submit" name="btn" value="口コミを投稿する" title="口コミを投稿する" class="btn">
+							<?php comment_id_fields( $post_id ); ?>
+							<!--
+							<p class="btn"><a href="#">商品を探す</a></p>
+							!-->
+						</div>
+					</form>
+				</div>
+				<div class="item_kuchikomi_write_image">
+					<?php echo '<div class="image">'.get_avatar( $current_user->ID, 92, array(), '', array('class' => 'switch') ).'</div>'; ?>
+					<p class="name"><?php echo $current_user->user_nicename; ?></p>
+				</div>
+			</div>
+		</div>
+<?php 
 	}
 
 }
