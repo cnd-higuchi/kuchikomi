@@ -354,5 +354,26 @@ class kuchikomi {
 <?php 
 	}
 
+	public function get_average_rating( $post_id = null ) {
+		$args = array(
+			'post_id' => $post_id,
+			'meta_key' => 'rating',
+		);
+		$comments = get_comments( $args );
+		$value = 0;
+		foreach ($comments as $comment ) {
+			$value += $comment->meta_value;
+		}
+		$average = round($value / count($comments), 2);
+		$stars = '';
+		for ($j = 0; $j < 5; $j++) {
+			if ( $j < $average ) {
+				$stars .= "★";
+			} else {
+				$stars .= "☆";
+			}
+		}
+		echo '<span>'.$stars.'</span>'.number_format($average, 2);
+	}
 }
 $kuchikomi = new kuchikomi();
